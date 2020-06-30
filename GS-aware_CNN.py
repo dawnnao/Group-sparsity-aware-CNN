@@ -45,7 +45,7 @@ from keras.utils import plot_model
 from keras.callbacks import LearningRateScheduler
 from keras.callbacks import ModelCheckpoint, Callback
 import os
-# os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'  # Windows
+# os.environ['PATH'] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'  # Windows
 import hdf5storage
 import math
 from scipy.linalg import dft
@@ -453,7 +453,7 @@ def gsn(data_path, data_name, tail, fs, duration, overlap, channel, sample_ratio
         ##
         lw_real = K.variable(1.)
         lw_imag = K.variable(1.)
-        model.compile(optimizer=opt, loss="mean_squared_error",
+        model.compile(optimizer=opt, loss='mean_squared_error',
                       loss_weights=[lw_real, lw_imag], metrics=['mae'])
 
         class LossWeightsScheduler(Callback):
@@ -724,7 +724,7 @@ def gsn(data_path, data_name, tail, fs, duration, overlap, channel, sample_ratio
             plt.close('all')
 
         elapsed_time = time.time() - start_time
-        print(time.strftime("Elapsed time: %H:%M:%S\n", time.gmtime(elapsed_time)))
+        print(time.strftime('Elapsed time: %H:%M:%S\n', time.gmtime(elapsed_time)))
 
     #%% Combine segments
 
@@ -797,7 +797,7 @@ def gsn(data_path, data_name, tail, fs, duration, overlap, channel, sample_ratio
 #%% 0 User input
 
 # A example
-data_path = "./simulation_impulse/"
+data_path = './simulation_impulse/'
 data_name = ['VIB']  # DPM
 tail = '.mat'
 channel = 'all'  # 'all' or a list. For example: [0, 1, 5]
@@ -819,7 +819,7 @@ for pac in packet:
         fs = data_fs(d_name)
         duration = 4096  # no larger than the length of data-to-recover
         overlap = 0  # 512
-        result_path = "%s/results/" % data_path
+        result_path = '%s/results/' % data_path
 
         for sratio in sample_ratio:
             for rseed in randseed:
