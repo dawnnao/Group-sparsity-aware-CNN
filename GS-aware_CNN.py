@@ -38,10 +38,10 @@ import numpy as np
 import tensorflow as tf
 from keras.layers import Input, Multiply, Add, Subtract, Conv2D, Lambda
 from keras.models import Model
-from keras.optimizers import Adam, SGD, RMSprop
+from tensorflow.keras.optimizers import Adam, SGD, RMSprop
 from keras import regularizers
 from keras import backend as K
-from keras.utils import plot_model
+from tensorflow.keras.utils import plot_model
 from keras.callbacks import LearningRateScheduler
 from keras.callbacks import ModelCheckpoint, Callback
 import os
@@ -119,7 +119,8 @@ def data_unit(data_name):
         'U6': 'Velocity (mm/s)',
         'U7': 'Velocity (mm/s)',
         'U8': 'Velocity (mm/s)',
-        'U9': 'Velocity (mm/s)'
+        'U9': 'Velocity (mm/s)',
+        'vel': 'Velocity (m/s)'
     }.get(data_name, ' ')  # default if x not found
 
 
@@ -164,7 +165,8 @@ def data_fs(name):
         'VIB': 50,
         'VIC': 50,
         'VIF': 40,
-        'RSG': 20
+        'RSG': 20,
+        'vel': 100
     }.get(name, 1)  # 1 is default if x not found
 
 
@@ -373,7 +375,7 @@ def gsn(data_path, data_name, tail, fs, duration, overlap, channel, sample_ratio
         data_output2 = np.expand_dims(data_output2, -1)
 
         np.random.seed(randseed)
-        tf.set_random_seed(randseed)
+        tf.random.set_seed(randseed)
 
         class Regularizer(object):
             """Regularizer base class.
@@ -517,14 +519,16 @@ def gsn(data_path, data_name, tail, fs, duration, overlap, channel, sample_ratio
         fig.savefig(file_name + '.eps')
         fig.savefig(file_name + '.pdf')
         subprocess.call(
-            'C:/Program Files/Inkscape/inkscape.exe ' + file_name + '.svg ' '--export-emf=' + file_name + '.emf')
+            'C:/Program Files/Inkscape/bin/inkscape.exe ' + file_name + '.svg ' '--export-emf=' + file_name + '.emf')
         time.sleep(0.1)
 
         # Get basis coeffs
-        weights_real = np.squeeze(model.get_weights()[0])
+        # weights_real = np.squeeze(model.get_weights()[0])
+        weights_real = np.squeeze(model.get_weights()[0], axis=(0, 3))
         print('shape of weights_real:', weights_real.shape, '\n')
 
-        weights_imag = np.squeeze(model.get_weights()[1])
+        # weights_imag = np.squeeze(model.get_weights()[1])
+        weights_imag = np.squeeze(model.get_weights()[1], axis=(0, 3))
         print('shape of weights_imag:', weights_imag.shape, '\n')
 
         weights_complex[slice] = weights_real + weights_imag * 1j
@@ -797,8 +801,10 @@ def gsn(data_path, data_name, tail, fs, duration, overlap, channel, sample_ratio
 #%% 0 User input
 
 # A example
-data_path = './simulation_impulse/'
-data_name = ['VIB']  # DPM
+# data_path = './simulation_impulse/'
+# data_name = ['VIB']  # DPM
+data_path = './earthquake_response_outrange/'
+data_name = ['vel']  # DPM
 tail = '.mat'
 channel = 'all'  # 'all' or a list. For example: [0, 1, 5]
 
@@ -808,7 +814,7 @@ packet = np.array([1])  # number of point in each missing segment
 randseed = np.arange(0, 1)  # seeds for random number
 regularizer_weight = np.array([10.0])
 batch_size = 128
-epochs = 2400
+epochs = 1200
 harmonic_wavelet_interval = np.array([1])
 loss_weight_rate = 24
 
@@ -817,7 +823,7 @@ loss_weight_rate = 24
 for pac in packet:
     for d_name in data_name:
         fs = data_fs(d_name)
-        duration = 4096  # no larger than the length of data-to-recover
+        duration = 8192  # no larger than the length of data-to-recover
         overlap = 0  # 512
         result_path = '%s/results/' % data_path
 
