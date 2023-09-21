@@ -298,37 +298,37 @@ def gsn(data_path, data_name, tail, fs, duration, overlap, channel, sample_ratio
 
         #%% 3 Generate mask matrix
 
-        mask_matrix = ~np.isnan(data_time) * 1
+        # mask_matrix = ~np.isnan(data_time) * 1
 
         np.random.seed(randseed + slice)  # generate random seed
 
-        # if packet > 1:
-        #     remain = np.mod(duration, packet)
-        #     if bad_channel is None:
-        #         mask_matrix_condensed = np.random.choice([0, 1],
-        #                                                  size=(data_time.shape[0] // packet, data_time.shape[1]),
-        #                                                  p=[1 - sample_ratio, sample_ratio])
-        #         mask_matrix = np.vstack(
-        #             (np.repeat(mask_matrix_condensed, packet, axis=0), np.ones((remain, data_time.shape[1]))))
-        #     else:
-        #         mask_matrix_condensed = np.random.choice([0, 1],
-        #                                                  size=(data_time.shape[0] // packet, data_time.shape[1]),
-        #                                                  p=[1 - sample_ratio, sample_ratio])
-        #         for b in range(len(bad_channel)):
-        #             mask_col = np.random.choice([0, 1], size=(data_time.shape[0] // packet),
-        #                                         p=[1 - bad_sample_ratio[b], bad_sample_ratio[b]])
-        #             mask_matrix_condensed[:, bad_channel[b]] = mask_col
-        #         mask_matrix = np.vstack(
-        #             (np.repeat(mask_matrix_condensed, packet, axis=0), np.ones((remain, data_time.shape[1]))))
-        # else:
-        #     if bad_channel is None:
-        #         mask_matrix = np.random.choice([0, 1], size=data_time.shape, p=[1 - sample_ratio, sample_ratio])
-        #     else:
-        #         mask_matrix = np.random.choice([0, 1], size=data_time.shape, p=[1 - sample_ratio, sample_ratio])
-        #         for b in range(len(bad_channel)):
-        #             mask_col = np.random.choice([0, 1], size=(data_time.shape[0]),
-        #                                         p=[1 - bad_sample_ratio[b], bad_sample_ratio[b]])
-        #             mask_matrix[:, bad_channel[b]] = mask_col
+        if packet > 1:
+            remain = np.mod(duration, packet)
+            if bad_channel is None:
+                mask_matrix_condensed = np.random.choice([0, 1],
+                                                         size=(data_time.shape[0] // packet, data_time.shape[1]),
+                                                         p=[1 - sample_ratio, sample_ratio])
+                mask_matrix = np.vstack(
+                    (np.repeat(mask_matrix_condensed, packet, axis=0), np.ones((remain, data_time.shape[1]))))
+            else:
+                mask_matrix_condensed = np.random.choice([0, 1],
+                                                         size=(data_time.shape[0] // packet, data_time.shape[1]),
+                                                         p=[1 - sample_ratio, sample_ratio])
+                for b in range(len(bad_channel)):
+                    mask_col = np.random.choice([0, 1], size=(data_time.shape[0] // packet),
+                                                p=[1 - bad_sample_ratio[b], bad_sample_ratio[b]])
+                    mask_matrix_condensed[:, bad_channel[b]] = mask_col
+                mask_matrix = np.vstack(
+                    (np.repeat(mask_matrix_condensed, packet, axis=0), np.ones((remain, data_time.shape[1]))))
+        else:
+            if bad_channel is None:
+                mask_matrix = np.random.choice([0, 1], size=data_time.shape, p=[1 - sample_ratio, sample_ratio])
+            else:
+                mask_matrix = np.random.choice([0, 1], size=data_time.shape, p=[1 - sample_ratio, sample_ratio])
+                for b in range(len(bad_channel)):
+                    mask_col = np.random.choice([0, 1], size=(data_time.shape[0]),
+                                                p=[1 - bad_sample_ratio[b], bad_sample_ratio[b]])
+                    mask_matrix[:, bad_channel[b]] = mask_col
 
         mask_matrix_all[slice] = mask_matrix
         print('shape of mask_matrix:', mask_matrix.shape, '\n')
@@ -814,13 +814,13 @@ data_name = ['STR']
 tail = '.mat'
 channel = 'all'  # 'all' or a list. For example: [0, 1, 5]
 
-sample_ratio = np.array([1])  # input sampling ratio here
-packet = np.array([1])  # number of point in each missing segment
+sample_ratio = np.array([0.5])  # input sampling ratio here
+packet = np.array([100])  # number of point in each missing segment
 
 randseed = np.arange(0, 1)  # seeds for random number
 regularizer_weight = np.array([10.0])
 batch_size = 128
-epochs = 1200
+epochs = 120
 harmonic_wavelet_interval = np.array([1])
 loss_weight_rate = 24
 
